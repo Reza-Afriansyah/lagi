@@ -1,1 +1,123 @@
-# lagi
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Reservasi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h2 { margin-top: 20px; }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      display: none;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 8px;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    input {
+      width: 95%;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Halaman Admin Reservasi</h1>
+  <button onclick="showTable('Mini Soccer')">Reservasi Mini Soccer</button>
+  <button onclick="showTable('Badminton')">Reservasi Badminton</button>
+
+  <h2 id="judulTabel"></h2>
+  <table id="reservasiTable">
+    <thead>
+      <tr>
+        <th>Jam</th>
+        <th>Nama Penyewa</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    const startHour = 8;
+    const endHour = 24;
+
+    let currentSheet = "";
+
+    function showTable(type) {
+      currentSheet = type; // Nama sheet sesuai pilihan
+      document.getElementById("judulTabel").innerText = "Reservasi " + type;
+      const tableBody = document.getElementById("tableBody");
+      const table = document.getElementById("reservasiTable");
+      tableBody.innerHTML = "";
+
+      for (let h = startHour; h < endHour; h++) {
+        const row = document.createElement("tr");
+
+        const jamCell = document.createElement("td");
+        jamCell.textContent = `${String(h).padStart(2, '0')}:00 - ${String(h+1).padStart(2, '0')}:00`;
+
+        const namaCell = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.dataset.jam = jamCell.textContent;
+        input.onchange = function() {
+          kirimData(this.dataset.jam, this.value);
+        };
+        namaCell.appendChild(input);
+
+        row.appendChild(jamCell);
+        row.appendChild(namaCell);
+        tableBody.appendChild(row);
+      }
+
+      table.style.display = "table";
+    }
+
+    // Ganti dengan URL Web App dari Google Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwDb0DhrA3rJYQNQ27fnD4QKViNRyymN33jSyEz2FsEQHCmrZINdddP1lRSxgSdtqhjcw/exec";
+
+    function kirimData(jam, nama) {
+      if (!nama) return;
+      fetch(scriptURL, {
+        method: "POST",
+        body: new URLSearchParams({
+          sheet: currentSheet,
+          jam: jam,
+          nama: nama
+        })
+      })
+      .then(response => response.text())
+      .then(result => {
+        console.log("Data berhasil dikirim:", result);
+      })
+      .catch(error => console.error("Error:", error));
+    }
+  </script>
+</body>
+</html>
